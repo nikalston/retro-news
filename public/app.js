@@ -307,6 +307,7 @@ document.addEventListener('keydown', e => {
   } else if (!modal.classList.contains('hidden')) {
     if (e.key === 'Escape') closeModal();
     else if (e.key === 'Enter') window.open(modalLink.href, '_blank', 'noopener');
+    else if (e.key === 'd' || e.key === 'D') { dismissItem(modalLink.href); closeModal(); }
   }
 });
 
