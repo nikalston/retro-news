@@ -19,7 +19,7 @@ html, body {
   background: var(--bg);
   color: var(--green);
   font-family: 'VT323', 'Courier New', monospace;
-  font-size: 18px;
+  font-size: 22px;
   line-height: 1.4;
   overflow: hidden;
 }
