@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "90s BBS-style RSS news reader on Cloudflare Pages",
   "scripts": {
-    "dev": "wrangler pages dev public",
-    "deploy": "wrangler pages deploy public --project-name=retro-news"
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
   },
   "devDependencies": {
     "wrangler": "^4.0.0"

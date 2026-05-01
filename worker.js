@@ -1,26 +1,24 @@
-// Cloudflare Pages Function — serves /api/feeds
-// Pure Web Standards, no npm dependencies at runtime.
-//
+// Cloudflare Worker — handles /api/feeds and serves static assets
 // To add/remove feeds, edit the FEEDS array below, then push to GitHub.
 
 const FEEDS = [
-  { name: 'HACKERNEWS',  url: 'https://news.ycombinator.com/rss',                    color: '#00ff41' },
-  { name: 'ARSTECHNICA', url: 'https://feeds.arstechnica.com/arstechnica/index',      color: '#ff6600' },
-  { name: 'THEREGISTER', url: 'https://www.theregister.com/headlines.atom',           color: '#ffdd00' },
-  { name: 'WIRED',       url: 'https://www.wired.com/feed/rss',                       color: '#00ffff' },
-  { name: 'BBC',         url: 'https://feeds.bbci.co.uk/news/world/rss.xml',          color: '#ff4444' },
-  { name: 'TECHDIRT',    url: 'https://www.techdirt.com/techdirt_rss.xml',            color: '#cc44ff' },
-  { name: 'ENGADGET',    url: 'https://www.engadget.com/rss.xml',                     color: '#ff44aa' },
-  { name: 'TECHCRUNCH',  url: 'https://techcrunch.com/feed/',                         color: '#00cc88' },
-  { name: 'KREBSONSEC',  url: 'https://krebsonsecurity.com/feed/',                   color: '#ff8800' },
+  { name: 'HACKERNEWS',  url: 'https://news.ycombinator.com/rss',                  color: '#00ff41' },
+  { name: 'ARSTECHNICA', url: 'https://feeds.arstechnica.com/arstechnica/index',    color: '#ff6600' },
+  { name: 'THEREGISTER', url: 'https://www.theregister.com/headlines.atom',         color: '#ffdd00' },
+  { name: 'WIRED',       url: 'https://www.wired.com/feed/rss',                     color: '#00ffff' },
+  { name: 'BBC',         url: 'https://feeds.bbci.co.uk/news/world/rss.xml',        color: '#ff4444' },
+  { name: 'TECHDIRT',    url: 'https://www.techdirt.com/techdirt_rss.xml',          color: '#cc44ff' },
+  { name: 'ENGADGET',    url: 'https://www.engadget.com/rss.xml',                   color: '#ff44aa' },
+  { name: 'TECHCRUNCH',  url: 'https://techcrunch.com/feed/',                       color: '#00cc88' },
+  { name: 'KREBSONSEC',  url: 'https://krebsonsecurity.com/feed/',                 color: '#ff8800' },
 ];
 
-// In-memory cache (per Worker isolate lifetime, ~a few minutes)
+// ── Cache ──────────────────────────────────────────────────────
 let _cache = null;
 let _cacheAt = 0;
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const CACHE_TTL = 5 * 60 * 1000;
 
-// ── XML / HTML helpers ─────────────────────────────────────────
+// ── XML helpers ────────────────────────────────────────────────
 
 function unescapeEntities(str) {
   return str
@@ -43,7 +41,6 @@ function unwrapCdata(str) {
   return m ? m[1] : str;
 }
 
-// Extract first occurrence of <tag ...>content</tag>
 function tagContent(xml, tag) {
   const re = new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${tag}>`, 'i');
   const m = xml.match(re);
@@ -61,16 +58,12 @@ function parseItems(xml) {
   return blocks.slice(0, 25).map(block => {
     const title = stripHtml(tagContent(block, 'title'));
 
-    // Link: RSS = <link>url</link>; Atom = <link href="url"/>
     let link = tagContent(block, 'link').trim();
     if (!link) {
       const m = block.match(/<link[^>]+href=["']([^"']+)["']/i);
       link = m ? m[1] : '';
     }
-    if (!link) {
-      // Fallback: <guid isPermaLink="true">
-      link = tagContent(block, 'guid').trim();
-    }
+    if (!link) link = tagContent(block, 'guid').trim();
 
     const date =
       tagContent(block, 'pubDate') ||
@@ -86,9 +79,7 @@ function parseItems(xml) {
       tagContent(block, 'content') ||
       '';
 
-    const summary = stripHtml(rawSummary).slice(0, 400);
-
-    return { title, link, date: date || null, summary };
+    return { title, link, date: date || null, summary: stripHtml(rawSummary).slice(0, 400) };
   });
 }
 
@@ -108,12 +99,7 @@ async function fetchFeed(feed) {
     clearTimeout(timer);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const xml = await res.text();
-    return {
-      source: feed.name,
-      color: feed.color || '#00ff41',
-      error: null,
-      items: parseItems(xml),
-    };
+    return { source: feed.name, color: feed.color || '#00ff41', error: null, items: parseItems(xml) };
   } catch (err) {
     clearTimeout(timer);
     throw err;
@@ -122,7 +108,6 @@ async function fetchFeed(feed) {
 
 async function buildPayload() {
   const results = await Promise.allSettled(FEEDS.map(fetchFeed));
-
   const sources = [];
   const allItems = [];
 
@@ -132,15 +117,9 @@ async function buildPayload() {
     if (result.status === 'fulfilled') {
       const f = result.value;
       sources.push({ name: f.source, color: f.color, error: null });
-      for (const item of f.items) {
-        allItems.push({ ...item, source: f.source, color: f.color });
-      }
+      for (const item of f.items) allItems.push({ ...item, source: f.source, color: f.color });
     } else {
-      sources.push({
-        name: feed.name,
-        color: feed.color || '#00ff41',
-        error: result.reason?.message || 'fetch failed',
-      });
+      sources.push({ name: feed.name, color: feed.color || '#00ff41', error: result.reason?.message || 'fetch failed' });
     }
   }
 
@@ -153,27 +132,42 @@ async function buildPayload() {
   return { items: allItems, sources, lastSync: new Date().toISOString() };
 }
 
-// ── Handler ────────────────────────────────────────────────────
+// ── Request handler ────────────────────────────────────────────
 
-export async function onRequestGet({ request }) {
-  const url = new URL(request.url);
-  const force = url.searchParams.get('force') === '1';
+function jsonResponse(data, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=60' },
+  });
+}
+
+async function handleFeeds(request) {
+  const force = new URL(request.url).searchParams.get('force') === '1';
   const now = Date.now();
 
   if (!force && _cache && now - _cacheAt < CACHE_TTL) {
-    return Response.json({ ..._cache, cached: true }, {
-      headers: { 'Cache-Control': 'public, max-age=60' },
-    });
+    return jsonResponse({ ..._cache, cached: true });
   }
 
   try {
     const payload = await buildPayload();
     _cache = payload;
     _cacheAt = now;
-    return Response.json({ ...payload, cached: false }, {
-      headers: { 'Cache-Control': 'public, max-age=60' },
-    });
+    return jsonResponse({ ...payload, cached: false });
   } catch (err) {
-    return Response.json({ error: err.message }, { status: 500 });
+    return jsonResponse({ error: err.message }, 500);
   }
 }
+
+// ── Worker entry ───────────────────────────────────────────────
+
+export default {
+  async fetch(request, env) {
+    const { pathname } = new URL(request.url);
+
+    if (pathname === '/api/feeds') return handleFeeds(request);
+
+    // All other requests: serve static files from /public
+    return env.ASSETS.fetch(request);
+  },
+};
