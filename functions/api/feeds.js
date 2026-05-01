@@ -1,7 +1,19 @@
 // Cloudflare Pages Function — serves /api/feeds
 // Pure Web Standards, no npm dependencies at runtime.
+//
+// To add/remove feeds, edit the FEEDS array below, then push to GitHub.
 
-import FEEDS from '../../feeds.json';
+const FEEDS = [
+  { name: 'HACKERNEWS',  url: 'https://news.ycombinator.com/rss',                    color: '#00ff41' },
+  { name: 'ARSTECHNICA', url: 'https://feeds.arstechnica.com/arstechnica/index',      color: '#ff6600' },
+  { name: 'THEREGISTER', url: 'https://www.theregister.com/headlines.atom',           color: '#ffdd00' },
+  { name: 'WIRED',       url: 'https://www.wired.com/feed/rss',                       color: '#00ffff' },
+  { name: 'BBC',         url: 'https://feeds.bbci.co.uk/news/world/rss.xml',          color: '#ff4444' },
+  { name: 'TECHDIRT',    url: 'https://www.techdirt.com/techdirt_rss.xml',            color: '#cc44ff' },
+  { name: 'ENGADGET',    url: 'https://www.engadget.com/rss.xml',                     color: '#ff44aa' },
+  { name: 'TECHCRUNCH',  url: 'https://techcrunch.com/feed/',                         color: '#00cc88' },
+  { name: 'KREBSONSEC',  url: 'https://krebsonsecurity.com/feed/',                   color: '#ff8800' },
+];
 
 // In-memory cache (per Worker isolate lifetime, ~a few minutes)
 let _cache = null;
