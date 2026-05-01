@@ -1,0 +1,22 @@
+[
+  {
+    "name": "HACKERNEWS",
+    "url": "https://news.ycombinator.com/rss",
+    "color": "#00ff41"
+  },
+  {
+    "name": "ARSTECHNICA",
+    "url": "https://feeds.arstechnica.com/arstechnica/index",
+    "color": "#ff6600"
+  },
+  {
+    "name": "THEREGISTER",
+    "url": "https://www.theregister.com/headlines.atom",
+    "color": "#ffdd00"
+  },
+  {
+    "name": "WIRED",
+    "url": "https://www.wired.com/feed/rss",
+    "color": "#00ffff"
+  }
+]

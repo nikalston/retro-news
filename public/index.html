@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEWSTERM v1.0</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="scanlines"></div>
+  <div class="crt-overlay"></div>
+
+  <div id="boot-screen">
+    <pre id="boot-text"></pre>
+    <span class="cursor blink">_</span>
+  </div>
+
+  <div id="main" class="hidden">
+    <header>
+      <pre class="ascii-logo">
+ _   _ _________       _____ _____ ____  __  __
+| \ | | ____\ \      / / ____|_   _|  _ \|  \/  |
+|  \| |  _|  \ \ /\ / /\___ \ | | | |_) | |\/| |
+| |\  | |___  \ V  V /  ___) || | |  _ <| |  | |
+|_| \_|_____|  \_/\_/  |____/ |_| |_| \_\_|  |_|
+      </pre>
+      <div class="header-bar">
+        <span class="header-tag">[NEWSTERM v1.0]</span>
+        <span id="header-stats">[FEEDS: --] [ITEMS: --]</span>
+        <span id="header-sync">[SYNC: --:--:--]</span>
+        <button id="refresh-btn" class="term-btn" title="Force refresh">[REFRESH]</button>
+      </div>
+    </header>
+
+    <div id="filter-bar">
+      <span class="filter-label">FILTER:</span>
+      <button class="filter-btn active" data-source="ALL">[ALL]</button>
+    </div>
+
+    <div id="content-area">
+      <div id="status-line"></div>
+      <div id="news-list"></div>
+    </div>
+
+    <footer>
+      <span>[ENTER] Open link</span>
+      <span>[J/K] Navigate</span>
+      <span>[F] Filter source</span>
+      <span>[R] Refresh</span>
+      <span id="footer-time"></span>
+    </footer>
+  </div>
+
+  <div id="modal" class="hidden">
+    <div id="modal-box">
+      <div id="modal-title"></div>
+      <div id="modal-meta"></div>
+      <div id="modal-summary"></div>
+      <div id="modal-actions">
+        <a id="modal-link" href="#" target="_blank" rel="noopener">[OPEN IN BROWSER]</a>
+        <button id="modal-close">[CLOSE]</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
