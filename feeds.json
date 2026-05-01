@@ -18,5 +18,10 @@
     "name": "WIRED",
     "url": "https://www.wired.com/feed/rss",
     "color": "#00ffff"
+  },
+  {
+    "name": "BBC",
+    "url": "https://feeds.bbci.co.uk/news/rss.xml",
+    "color": "#ff4444"
   }
 ]
