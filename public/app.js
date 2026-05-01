@@ -47,9 +47,9 @@ const BOOT_LINES = [
 async function runBoot() {
   for (const line of BOOT_LINES) {
     await typeLine(line);
-    await sleep(line === '' ? 80 : 60);
+    await sleep(line === '' ? 200 : 120);
   }
-  await sleep(300);
+  await waitForEnter();
   bootScreen.classList.add('hidden');
   main.classList.remove('hidden');
   loadFeeds();
@@ -59,6 +59,27 @@ function typeLine(text) {
   return new Promise(resolve => {
     bootText.textContent += text + '\n';
     resolve();
+  });
+}
+
+function waitForEnter() {
+  return new Promise(resolve => {
+    bootText.textContent += '\n[ PRESS ENTER TO CONTINUE ]';
+
+    function onKey(e) {
+      if (e.key === 'Enter') {
+        document.removeEventListener('keydown', onKey);
+        resolve();
+      }
+    }
+    function onClick() {
+      bootScreen.removeEventListener('click', onClick);
+      document.removeEventListener('keydown', onKey);
+      resolve();
+    }
+
+    document.addEventListener('keydown', onKey);
+    bootScreen.addEventListener('click', onClick);
   });
 }
 
