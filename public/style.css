@@ -292,17 +292,17 @@ footer {
 }
 
 #modal-title {
-  font-size: 26px;
+  font-size: 32px;
   color: var(--amber);
   text-shadow: 0 0 8px var(--amber);
   line-height: 1.3;
 }
 
-#modal-meta { color: var(--text-dim); font-size: 20px; }
+#modal-meta { color: var(--text-dim); font-size: 24px; }
 
 #modal-summary {
   color: var(--green-dim);
-  font-size: 21px;
+  font-size: 26px;
   line-height: 1.5;
   border-left: 2px solid var(--border);
   padding-left: 0.75rem;
@@ -320,7 +320,7 @@ footer {
 #modal-link {
   color: var(--cyan);
   text-decoration: none;
-  font-size: 18px;
+  font-size: 22px;
 }
 #modal-link:hover { text-shadow: 0 0 8px var(--cyan); }
 
@@ -329,7 +329,7 @@ footer {
   border: 1px solid var(--red);
   color: var(--red);
   font-family: inherit;
-  font-size: 18px;
+  font-size: 22px;
   cursor: pointer;
   padding: 0 6px;
 }
