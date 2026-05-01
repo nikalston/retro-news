@@ -84,7 +84,10 @@ function parseItems(xml) {
 
 async function fetchFeed(feed) {
   const res = await fetch(feed.url, {
-    headers: { 'User-Agent': 'NewsTerminal/1.0 (+https://github.com)' },
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (compatible; RSS reader)',
+      'Accept': 'application/rss+xml, application/atom+xml, application/xml, text/xml, */*',
+    },
     signal: AbortSignal.timeout(8000),
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
