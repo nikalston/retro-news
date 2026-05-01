@@ -21,7 +21,7 @@
   },
   {
     "name": "BBC",
-    "url": "https://feeds.bbci.co.uk/news/rss.xml",
+    "url": "https://feeds.bbci.co.uk/news/world/rss.xml",
     "color": "#ff4444"
   }
 ]
