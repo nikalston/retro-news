@@ -28,7 +28,7 @@ const modalClose  = document.getElementById('modal-close');
 
 // ── Boot Sequence ──────────────────────────────────────────────
 const BOOT_LINES = [
-  'NEWSTERM v1.0  (c) 1997 CYBERWARE SYSTEMS INC.',
+  'NEWSTERM v1.0  (c) 1997 NIKSTER SYSTEMS INC.',
   '══════════════════════════════════════════════',
   '',
   'BIOS v2.44 ... OK',
