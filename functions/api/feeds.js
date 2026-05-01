@@ -83,21 +83,29 @@ function parseItems(xml) {
 // ── Feed fetching ──────────────────────────────────────────────
 
 async function fetchFeed(feed) {
-  const res = await fetch(feed.url, {
-    headers: {
-      'User-Agent': 'Mozilla/5.0 (compatible; RSS reader)',
-      'Accept': 'application/rss+xml, application/atom+xml, application/xml, text/xml, */*',
-    },
-    signal: AbortSignal.timeout(8000),
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const xml = await res.text();
-  return {
-    source: feed.name,
-    color: feed.color || '#00ff41',
-    error: null,
-    items: parseItems(xml),
-  };
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 8000);
+  try {
+    const res = await fetch(feed.url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; RSS reader)',
+        'Accept': 'application/rss+xml, application/atom+xml, application/xml, text/xml, */*',
+      },
+      signal: controller.signal,
+    });
+    clearTimeout(timer);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const xml = await res.text();
+    return {
+      source: feed.name,
+      color: feed.color || '#00ff41',
+      error: null,
+      items: parseItems(xml),
+    };
+  } catch (err) {
+    clearTimeout(timer);
+    throw err;
+  }
 }
 
 async function buildPayload() {
