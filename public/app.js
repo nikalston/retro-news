@@ -7,6 +7,18 @@ let sources = [];
 let selectedIndex = 0;
 let activeSource = 'ALL';
 let lastSync = null;
+let dismissed = new Set(JSON.parse(localStorage.getItem('dismissed') || '[]'));
+
+function saveDismissed() {
+  localStorage.setItem('dismissed', JSON.stringify([...dismissed]));
+}
+
+function dismissItem(link) {
+  dismissed.add(link);
+  saveDismissed();
+  allItems = allItems.filter(i => i.link !== link);
+  applyFilter(activeSource);
+}
 
 // ── DOM refs ───────────────────────────────────────────────────
 const bootScreen  = document.getElementById('boot-screen');
@@ -96,7 +108,7 @@ async function loadFeeds(force = false) {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
 
-    allItems = data.items || [];
+    allItems = (data.items || []).filter(i => !dismissed.has(i.link));
     sources  = data.sources || [];
     lastSync = data.lastSync ? new Date(data.lastSync) : new Date();
 
@@ -185,8 +197,18 @@ function renderList() {
     num.className = 'item-num';
     num.textContent = String(i + 1).padStart(3, '0') + '.';
 
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'delete-btn';
+    deleteBtn.textContent = '[X]';
+    deleteBtn.title = 'Dismiss';
+    deleteBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      dismissItem(item.link);
+    });
+
     div.appendChild(num);
     div.appendChild(body);
+    div.appendChild(deleteBtn);
 
     div.addEventListener('click', () => {
       selectedIndex = i;
@@ -279,6 +301,8 @@ document.addEventListener('keydown', e => {
       cycleFilter();
     } else if (e.key === 'o' || e.key === 'O') {
       if (filteredItems[selectedIndex]) window.open(filteredItems[selectedIndex].link, '_blank', 'noopener');
+    } else if (e.key === 'd' || e.key === 'D' || e.key === 'Delete') {
+      if (filteredItems[selectedIndex]) dismissItem(filteredItems[selectedIndex].link);
     }
   } else if (!modal.classList.contains('hidden')) {
     if (e.key === 'Escape') closeModal();
